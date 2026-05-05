@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us — Brow Beauty Hub</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.png" alt="Brow Beauty Hub" class="nav-logo-img" />
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li class="nav-dropdown">
+          <a href="services.html" class="nav-dropdown-toggle">Services <i class="fa-solid fa-chevron-down nav-chevron"></i></a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="threading.html">Threading</a></li>
+            <li><a href="tinting.html">Tinting</a></li>
+            <li><a href="eyelash-extension.html">Eyelash Extension</a></li>
+            <li><a href="lash-lift.html">Lash Lift / Perm</a></li>
+            <li><a href="facial.html">Facial</a></li>
+            <li><a href="henna-tattoo.html">Henna Tattoo</a></li>
+            <li><a href="brow-henna.html">Brow Henna</a></li>
+            <li><a href="oil-massage.html">Oil Head Massage</a></li>
+            <li><a href="waxing.html">Face &amp; Body Waxing</a></li>
+          </ul>
+        </li>
+        <li><a href="locations.html">Locations</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="blogs.html">Blogs</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="contact.html#booking" class="nav-cta">Book Now</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== PAGE BANNER ========== -->
+  <section class="page-banner">
+    <div class="page-banner-overlay"></div>
+    <div class="page-banner-content">
+      <span class="section-label light">Who We Are</span>
+      <h1>About <em>Brow Beauty Hub</em></h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">About Us</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT SECTION ========== -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-images">
+          <div class="about-img-main">
+            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80" alt="Salon interior" loading="lazy" />
+          </div>
+          <div class="about-img-accent">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80" alt="Stylist at work" loading="lazy" />
+            <div class="about-badge">
+              <span class="badge-number">8+</span>
+              <span class="badge-text">Years of Excellence</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-content">
+          <span class="section-label">Who We Are</span>
+          <h2 class="section-title">Dedicated to Beauty, <em>Driven by Precision</em></h2>
+          <p class="about-lead">At Brow Beauty Hub, we are a dedicated team of experienced beauty professionals committed to delivering high-quality, results-driven treatments.</p>
+          <p class="about-body">Our focus is on enhancing natural beauty through precision techniques, premium products, and personalised care in a clean and welcoming environment. We pride ourselves on consistency, attention to detail, and creating a relaxing experience for every client who walks through our doors.</p>
+          <div class="about-mission">
+            <div class="mission-icon"><i class="fa-solid fa-bullseye"></i></div>
+            <div>
+              <h4>Our Mission</h4>
+              <p>To enhance every client's natural beauty through precision techniques, premium products, and a deeply personalised experience — delivered consistently across all three of our Sydney locations.</p>
+            </div>
+          </div>
+          <div class="about-values">
+            <div class="value-tag"><i class="fa-solid fa-check"></i> Precision Techniques</div>
+            <div class="value-tag"><i class="fa-solid fa-check"></i> Premium Products</div>
+            <div class="value-tag"><i class="fa-solid fa-check"></i> Clean &amp; Hygienic</div>
+            <div class="value-tag"><i class="fa-solid fa-check"></i> Personalised Care</div>
+            <div class="value-tag"><i class="fa-solid fa-check"></i> Results-Driven</div>
+            <div class="value-tag"><i class="fa-solid fa-check"></i> Consistent Standards</div>
+          </div>
+          <a href="contact.html#booking" class="btn btn-primary">Book a Consultation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STATS STRIP ========== -->
+  <section class="stats-strip">
+    <div class="stats-container">
+      <div class="stat-item">
+        <span class="stat-number" data-target="5000">0</span><span class="stat-plus">+</span>
+        <p>Happy Clients</p>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="3">0</span><span class="stat-plus"></span>
+        <p>Locations in Sydney</p>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="10">0</span><span class="stat-plus">+</span>
+        <p>Specialist Therapists</p>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="20">0</span><span class="stat-plus">+</span>
+        <p>Beauty Treatments</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TESTIMONIALS SECTION ========== -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Client Love</span>
+        <h2 class="section-title">What Our Clients <em>Are Saying</em></h2>
+      </div>
+      <div class="testimonials-slider" id="testimonials-slider">
+
+        <div class="testimonial-card active">
+          <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <p class="testimonial-text">"I've been coming to Brow Beauty Hub for over a year and the results are always flawless. My brow lamination lasts so long and the team really takes the time to shape them perfectly for my face. Absolutely love it!"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">S</div>
+            <div>
+              <strong>Sophia Anderson</strong>
+              <span>Brow Lamination Client — Roselands</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <p class="testimonial-text">"I had my lash extensions done at the Hurstville branch and I am obsessed! They looked so natural yet full — exactly what I asked for. The therapist was gentle, professional, and explained every step."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">E</div>
+            <div>
+              <strong>Emily Chen</strong>
+              <span>Lash Extensions Client — Hurstville</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <p class="testimonial-text">"The deep cleanse facial at Brow Beauty Hub is incredible. My skin was glowing for weeks. The salon is spotlessly clean and the staff are so knowledgeable. I drive from the other side of Sydney just to come here!"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">R</div>
+            <div>
+              <strong>Rachel Patel</strong>
+              <span>Facial Client — Hornsby</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <p class="testimonial-text">"I got my brow tattoo done here and honestly it changed my life. I wake up with perfect brows every single day. The precision is unreal — so natural-looking. Thank you Brow Beauty Hub, you've gained a client for life!"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">M</div>
+            <div>
+              <strong>Maya Thompson</strong>
+              <span>Brow Tattoo Client — Roselands</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="slider-controls">
+        <button class="slider-btn" id="prev-btn" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="slider-dots" id="slider-dots"></div>
+        <button class="slider-btn" id="next-btn" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo"><img src="images/logo.png" alt="Brow Beauty Hub" class="footer-logo-img" /></a>
+          <p>Precision brow, lash, and skin treatments across four Sydney locations � Roselands, Hurstville (Level 2 &amp; 3), and Hornsby — consistently beautiful results, every visit.</p>
+          <div class="social-links">
+            <a href="https://www.instagram.com/eyebrowbeautyhub/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://www.facebook.com/eyebrowbeautyhub/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://www.tiktok.com/tag/browbeautyhub" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="locations.html">Locations</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="blogs.html">Blogs</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="contact.html#booking">Book Now</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="services.html">Eyebrow Services</a></li>
+            <li><a href="services.html">Eyelash Treatments</a></li>
+            <li><a href="services.html">Facials &amp; Skin</a></li>
+            <li><a href="services.html">Waxing Services</a></li>
+            <li><a href="shop.html">Shop Products</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contact</h4>
+          <p><i class="fa-solid fa-location-dot"></i> Roselands · Hurstville · Hornsby</p>
+          <p><i class="fa-solid fa-phone"></i> Roselands: 0426 962 461</p>
+          <p><i class="fa-solid fa-phone"></i> Hurstville: 0414 205 503</p>
+          <p><i class="fa-solid fa-phone"></i> Hornsby: 02 8417 0814</p>
+          <p><i class="fa-solid fa-envelope"></i> eyebrowbeautyhub@gmail.com</p>
+          <p><i class="fa-regular fa-clock"></i> Mon–Sat: 9am–7pm</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Brow Beauty Hub. All rights reserved.</p>
+        <p>Designed with <i class="fa-solid fa-heart"></i> for beauty lovers.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <i class="fa-solid fa-chevron-up"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
