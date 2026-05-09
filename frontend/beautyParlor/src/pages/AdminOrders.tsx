@@ -1,0 +1,263 @@
+import { useState } from "react";
+import type { AdminOrder } from "../types/adminOrder";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
+const STATUS_OPTIONS = [
+  "pending",
+  "confirmed",
+  "processing",
+  "completed",
+  "cancelled",
+];
+
+function AdminOrders() {
+  const [adminKey, setAdminKey] = useState(() => {
+    return localStorage.getItem("bbh_admin_key") || "";
+  });
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [error, setError] = useState("");
+
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(`${API_BASE_URL}/orders/admin`, {
+        headers: {
+          "x-admin-key": adminKey,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not load orders");
+      }
+
+      localStorage.setItem("bbh_admin_key", adminKey);
+      setOrders(data);
+    } catch {
+      setError("Could not load orders. Check backend or admin key.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateOrderStatus = async (orderId: number, status: string) => {
+    try {
+      setUpdatingId(orderId);
+      setError("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/orders/admin/${orderId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-key": adminKey,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not update order");
+      }
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, status } : order
+        )
+      );
+    } catch {
+      setError("Could not update order status.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+
+    const firstName = order.customer.firstName || "";
+    const lastName = order.customer.lastName || "";
+    const fullName = `${firstName} ${lastName}`;
+
+    const searchText = [
+      order.orderNumber,
+      firstName,
+      lastName,
+      fullName,
+      order.customer.email,
+      order.customer.phone || "",
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    const matchesSearch = searchText.includes(searchQuery.toLowerCase().trim());
+
+    return matchesStatus && matchesSearch;
+  });
+
+  return (
+    <main className="admin-page">
+      <section className="admin-hero">
+        <p className="admin-eyebrow">Brow Beauty Hub</p>
+        <h1>Admin Orders</h1>
+        <p>View and manage product orders submitted from the shop checkout.</p>
+      </section>
+
+      <section className="admin-section">
+        <div className="admin-login-card">
+          <div>
+            <h2>Order Dashboard</h2>
+            <p>Enter your admin key to load customer orders.</p>
+          </div>
+
+          <div className="admin-login-row">
+            <input
+              type="password"
+              placeholder="Admin key"
+              value={adminKey}
+              onChange={(event) => setAdminKey(event.target.value)}
+            />
+
+            <button onClick={loadOrders} disabled={loading || !adminKey}>
+              {loading ? "Loading..." : "Load Orders"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.removeItem("bbh_admin_key");
+                setAdminKey("");
+              }}
+            >
+              Clear Key
+            </button>
+          </div>
+
+          <div className="admin-filter-row">
+            <input
+              type="text"
+              placeholder="Search by order/customer/email..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {error && <p className="admin-error">{error}</p>}
+        </div>
+
+        <div className="admin-orders-grid">
+          {filteredOrders.length === 0 ? (
+            <div className="admin-empty">
+              <i className="fa-solid fa-box-open"></i>
+              <p>No matching orders found.</p>
+            </div>
+          ) : (
+            filteredOrders.map((order) => (
+              <article className="admin-order-card" key={order.id}>
+                <div className="admin-order-top">
+                  <div>
+                    <h3>{order.orderNumber}</h3>
+                    <p>
+                      {new Date(order.createdAt).toLocaleDateString()} ·{" "}
+                      {new Date(order.createdAt).toLocaleTimeString()}
+                    </p>
+                  </div>
+
+                  <select
+                    className="admin-status-select"
+                    value={order.status}
+                    disabled={updatingId === order.id}
+                    onChange={(event) =>
+                      updateOrderStatus(order.id, event.target.value)
+                    }
+                  >
+                    {STATUS_OPTIONS.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="admin-customer">
+                  <h4>Customer Details</h4>
+
+                  <p>
+                    <strong>Name:</strong> {order.customer.firstName}{" "}
+                    {order.customer.lastName}
+                  </p>
+
+                  <p>
+                    <strong>Email:</strong> {order.customer.email}
+                  </p>
+
+                  <p>
+                    <strong>Phone:</strong> {order.customer.phone || "N/A"}
+                  </p>
+
+                  <p>
+                    <strong>Address:</strong> {order.customer.address},{" "}
+                    {order.customer.city} {order.customer.postcode}
+                  </p>
+
+                  {order.customer.notes && (
+                    <p>
+                      <strong>Notes:</strong> {order.customer.notes}
+                    </p>
+                  )}
+                </div>
+
+                <div className="admin-items">
+                  <h4>Items</h4>
+
+                  {order.items.map((item, index) => (
+                    <div className="admin-item-row" key={`${item.name}-${index}`}>
+                      <span>
+                        {item.qty} × {item.name}
+                      </span>
+
+                      <strong>${(item.qty * item.price).toFixed(2)}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="admin-order-total">
+                  <span>Total</span>
+                  <strong>${order.total.toFixed(2)}</strong>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export default AdminOrders;
