@@ -1,35 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const testimonials = [
-  {
-    text: "I've been coming to Brow Beauty Hub for over a year and the results are always flawless. My brow lamination lasts so long and the team really takes the time to shape them perfectly for my face. Absolutely love it!",
-    avatar: "S",
-    name: "Sophia Anderson",
-    service: "Brow Lamination Client — Roselands",
-  },
-  {
-    text: "I had my lash extensions done at the Hurstville branch and I am obsessed! They looked so natural yet full — exactly what I asked for. The therapist was gentle, professional, and explained every step. Will be back every fill!",
-    avatar: "E",
-    name: "Emily Chen",
-    service: "Lash Extensions Client — Hurstville",
-  },
-  {
-    text: "The deep cleanse facial at Brow Beauty Hub is incredible. My skin was glowing for weeks. The salon is spotlessly clean and the staff are so knowledgeable. I drive from the other side of Sydney just to come here!",
-    avatar: "R",
-    name: "Rachel Patel",
-    service: "Facial Client — Hornsby",
-  },
-  {
-    text: "I got my brow tattoo done here and honestly it changed my life. I wake up with perfect brows every single day. The precision is unreal — so natural-looking. Thank you Brow Beauty Hub, you've gained a client for life!",
-    avatar: "M",
-    name: "Maya Thompson",
-    service: "Brow Tattoo Client — Roselands",
-  },
-];
+import { getFeaturedReviews } from "../api/reviewApi";
+import type { Review } from "../types/review";
 
 function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [testimonials, setTestimonials] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadReviews() {
+      try {
+        const data = await getFeaturedReviews();
+        setTestimonials(data);
+      } catch {
+        setTestimonials([]);
+      } finally {
+        setReviewsLoading(false);
+      }
+    }
+
+    loadReviews();
+  }, []);
+
+  useEffect(() => {
+    if (testimonials.length === 0) return;
+
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [testimonials.length]);
 
   useEffect(() => {
     const fadeElements = document.querySelectorAll(".fade-up");
@@ -60,13 +62,14 @@ function Home() {
     return () => fadeObserver.disconnect();
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }).map((_, index) => (
+      <i
+        key={index}
+        className={index < rating ? "fa-solid fa-star" : "fa-regular fa-star"}
+      ></i>
+    ));
+  };
 
   return (
     <main>
@@ -340,76 +343,91 @@ function Home() {
         <div className="container">
           <div className="section-header">
             <span className="section-label">Client Love</span>
+
             <h2 className="section-title">
               What Our Clients <em>Are Saying</em>
             </h2>
           </div>
 
-          <div className="testimonials-slider" id="testimonials-slider">
-            {testimonials.map((testimonial, index) => (
-              <div
-                className={`testimonial-card ${
-                  activeSlide === index ? "active" : ""
-                }`}
-                key={testimonial.name}
-              >
-                <div className="stars">
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                </div>
+          {reviewsLoading ? (
+            <p className="section-desc text-center">Loading client reviews...</p>
+          ) : testimonials.length === 0 ? (
+            <p className="section-desc text-center">
+              No featured reviews available yet.
+            </p>
+          ) : (
+            <>
+              <div className="testimonials-slider" id="testimonials-slider">
+                {testimonials.map((testimonial, index) => (
+                  <div
+                    className={`testimonial-card ${activeSlide === index ? "active" : ""
+                      }`}
+                    key={testimonial.id}
+                  >
+                    <div className="stars">{renderStars(testimonial.rating)}</div>
 
-                <p className="testimonial-text">"{testimonial.text}"</p>
+                    <p className="testimonial-text">
+                      "{testimonial.reviewText}"
+                    </p>
 
-                <div className="testimonial-author">
-                  <div className="author-avatar">{testimonial.avatar}</div>
+                    <div className="testimonial-author">
+                      <div className="author-avatar">
+                        {testimonial.avatarLetter ||
+                          testimonial.clientName.charAt(0)}
+                      </div>
 
-                  <div>
-                    <strong>{testimonial.name}</strong>
-                    <span>{testimonial.service}</span>
+                      <div>
+                        <strong>{testimonial.clientName}</strong>
+
+                        <span>
+                          {testimonial.serviceName || "Beauty Client"}
+                          {testimonial.location
+                            ? ` — ${testimonial.location}`
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div className="slider-controls">
-            <button
-              aria-label="Previous"
-              className="slider-btn"
-              onClick={() =>
-                setActiveSlide(
-                  (activeSlide - 1 + testimonials.length) %
-                    testimonials.length
-                )
-              }
-            >
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
-
-            <div className="slider-dots" id="slider-dots">
-              {testimonials.map((testimonial, index) => (
+              <div className="slider-controls">
                 <button
-                  key={testimonial.name}
-                  aria-label={`Slide ${index + 1}`}
-                  className={`dot ${activeSlide === index ? "active" : ""}`}
-                  onClick={() => setActiveSlide(index)}
-                ></button>
-              ))}
-            </div>
+                  aria-label="Previous"
+                  className="slider-btn"
+                  onClick={() =>
+                    setActiveSlide(
+                      (activeSlide - 1 + testimonials.length) %
+                      testimonials.length
+                    )
+                  }
+                >
+                  <i className="fa-solid fa-chevron-left"></i>
+                </button>
 
-            <button
-              aria-label="Next"
-              className="slider-btn"
-              onClick={() =>
-                setActiveSlide((activeSlide + 1) % testimonials.length)
-              }
-            >
-              <i className="fa-solid fa-chevron-right"></i>
-            </button>
-          </div>
+                <div className="slider-dots" id="slider-dots">
+                  {testimonials.map((testimonial, index) => (
+                    <button
+                      key={testimonial.id}
+                      aria-label={`Slide ${index + 1}`}
+                      className={`dot ${activeSlide === index ? "active" : ""}`}
+                      onClick={() => setActiveSlide(index)}
+                    ></button>
+                  ))}
+                </div>
+
+                <button
+                  aria-label="Next"
+                  className="slider-btn"
+                  onClick={() =>
+                    setActiveSlide((activeSlide + 1) % testimonials.length)
+                  }
+                >
+                  <i className="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

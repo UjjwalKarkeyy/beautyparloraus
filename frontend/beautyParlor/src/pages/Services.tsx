@@ -1,47 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { services } from "../data/siteData";
-
-const galleryItems = [
-  {
-    category: "brows",
-    label: "Brow Shaping",
-    image:
-      "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?w=500&q=80",
-  },
-  {
-    category: "lashes",
-    label: "Lash Extensions",
-    image:
-      "https://images.unsplash.com/photo-1519735777090-ec97162dc266?w=500&q=80",
-  },
-  {
-    category: "brows",
-    label: "Brow Lamination",
-    image:
-      "https://images.unsplash.com/photo-1512207736890-6ffed8a84e8d?w=500&q=80",
-  },
-  {
-    category: "skin",
-    label: "Facial Treatment",
-    image:
-      "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500&q=80",
-  },
-  {
-    category: "waxing",
-    label: "Waxing Service",
-    image:
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&q=80",
-  },
-];
+import { getServices } from "../api/serviceApi";
+import type { Service } from "../types/service";
 
 function Services() {
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredGallery =
-    activeFilter === "all"
-      ? galleryItems
-      : galleryItems.filter((item) => item.category === activeFilter);
+  useEffect(() => {
+    async function loadServices() {
+      try {
+        const data = await getServices();
+        setServices(data);
+      } catch {
+        setServices([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadServices();
+  }, []);
 
   return (
     <main>
@@ -82,78 +61,47 @@ function Services() {
             </p>
           </div>
 
-          <div className="svc-ov-grid">
-            {services.map((service) => (
-              <Link
-                key={service.slug}
-                className="svc-ov-card fade-up"
-                to={`/services/${service.slug}`}
-              >
-                <div className="svc-ov-img">
-                  <img
-                    alt={service.title}
-                    loading="lazy"
-                    src={service.image}
-                  />
-                  <div className="svc-ov-overlay"></div>
-                </div>
+          {loading ? (
+            <p className="section-desc">Loading services...</p>
+          ) : services.length === 0 ? (
+            <p className="section-desc">No services available right now.</p>
+          ) : (
+            <div className="svc-ov-grid">
+              {services.map((service) => (
+                <Link
+                  key={service.id}
+                  className="svc-ov-card"
+                  to={`/services/${service.slug}`}
+                >
+                  <div className="svc-ov-img">
+                    <img
+                      alt={service.title}
+                      loading="lazy"
+                      src={
+                        service.image ||
+                        "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=80"
+                      }
+                    />
+                    <div className="svc-ov-overlay"></div>
+                  </div>
 
-                <div className="svc-ov-body">
-                  <span className="svc-ov-num">{service.number}</span>
-                  <h3>{service.title}</h3>
-                  <p>{service.description}</p>
+                  <div className="svc-ov-body">
+                    <span className="svc-ov-num">
+                      {service.number || "00"}
+                    </span>
 
-                  <span className="svc-ov-cta">
-                    Explore Service <i className="fa-solid fa-arrow-right"></i>
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+                    <h3>{service.title}</h3>
+                    <p>{service.description}</p>
 
-      <section className="gallery" id="gallery">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-label">Our Work</span>
-
-            <h2 className="section-title">
-              A Glimpse of <em>Our Artistry</em>
-            </h2>
-
-            <p className="section-desc">
-              Every look tells a story. Browse our portfolio of transformations.
-            </p>
-          </div>
-
-          <div className="gallery-filter">
-            {["all", "brows", "lashes", "skin", "waxing"].map((filter) => (
-              <button
-                key={filter}
-                className={`filter-btn ${
-                  activeFilter === filter ? "active" : ""
-                }`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter === "all"
-                  ? "All"
-                  : filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          <div className="gallery-grid">
-            {filteredGallery.map((item) => (
-              <div className="gallery-item" key={item.label}>
-                <img alt={item.label} loading="lazy" src={item.image} />
-
-                <div className="gallery-overlay">
-                  <span>{item.label}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+                    <span className="svc-ov-cta">
+                      Explore Service{" "}
+                      <i className="fa-solid fa-arrow-right"></i>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </main>

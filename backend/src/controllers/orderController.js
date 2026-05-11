@@ -1,4 +1,10 @@
 const pool = require("../config/db");
+const { sendEmail } = require("../utils/emailService");
+const {
+  orderReceivedTemplate,
+  orderStatusTemplate,
+} = require("../utils/emailTemplates");
+
 
 function generateOrderNumber() {
   return `BBH-${Date.now()}`;
@@ -105,6 +111,40 @@ async function createOrder(req, res, next) {
     }
 
     await client.query("COMMIT");
+
+    const fullOrder = await getOrderWithItems(order.id);
+
+    if (fullOrder) {
+      const email = orderReceivedTemplate(fullOrder);
+
+      try {
+        const emailResult = await sendEmail({
+          to: fullOrder.customer.email,
+          subject: email.subject,
+          html: email.html,
+        });
+
+        await logEmail({
+          orderId: fullOrder.id,
+          emailType: "order_received",
+          toEmail: fullOrder.customer.email,
+          subject: email.subject,
+          status: "sent",
+          providerMessageId: emailResult.id || emailResult.data?.id || null,
+        });
+      } catch (emailError) {
+        await logEmail({
+          orderId: fullOrder.id,
+          emailType: "order_received",
+          toEmail: fullOrder.customer.email,
+          subject: email.subject,
+          status: "failed",
+          errorMessage: emailError.message,
+        });
+
+        console.error("Order confirmation email failed:", emailError.message);
+      }
+    }
 
     res.status(201).json({
       id: order.id,
@@ -219,8 +259,132 @@ async function updateOrderStatus(req, res, next) {
   }
 }
 
+async function logEmail({
+  orderId,
+  emailType,
+  toEmail,
+  subject,
+  status,
+  providerMessageId,
+  errorMessage,
+}) {
+  await pool.query(
+    `
+    INSERT INTO email_logs (
+      order_id,
+      email_type,
+      to_email,
+      subject,
+      status,
+      provider_message_id,
+      error_message
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `,
+    [
+      orderId,
+      emailType,
+      toEmail,
+      subject,
+      status,
+      providerMessageId || null,
+      errorMessage || null,
+    ]
+  );
+}
+
+async function getOrderWithItems(orderId) {
+  const orderResult = await pool.query(
+    `
+    SELECT *
+    FROM orders
+    WHERE id = $1
+    `,
+    [orderId]
+  );
+
+  if (orderResult.rows.length === 0) {
+    return null;
+  }
+
+  const order = orderResult.rows[0];
+
+  const itemsResult = await pool.query(
+    `
+    SELECT *
+    FROM order_items
+    WHERE order_id = $1
+    ORDER BY id ASC
+    `,
+    [orderId]
+  );
+
+  return {
+    id: order.id,
+    orderNumber: order.order_number,
+    status: order.status,
+    customer: {
+      firstName: order.first_name,
+      lastName: order.last_name,
+      email: order.email,
+      phone: order.phone,
+      address: order.address,
+      city: order.city,
+      postcode: order.postcode,
+      notes: order.notes,
+    },
+    items: itemsResult.rows.map((item) => ({
+      id: item.product_id,
+      name: item.product_name,
+      qty: item.quantity,
+      price: Number(item.price),
+    })),
+    subtotal: Number(order.subtotal),
+    total: Number(order.total),
+    createdAt: order.created_at,
+  };
+}
+
+async function notifyOrderStatus(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const order = await getOrderWithItems(id);
+
+    if (!order) {
+      return res.status(404).json({
+        error: "Order not found",
+      });
+    }
+
+    const email = orderStatusTemplate(order);
+
+    const emailResult = await sendEmail({
+      to: order.customer.email,
+      subject: email.subject,
+      html: email.html,
+    });
+
+    await logEmail({
+      orderId: order.id,
+      emailType: "order_status_update",
+      toEmail: order.customer.email,
+      subject: email.subject,
+      status: "sent",
+      providerMessageId: emailResult.id || emailResult.data?.id || null,
+    });
+
+    res.json({
+      message: "Customer notified successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createOrder,
   getAdminOrders,
   updateOrderStatus,
+  notifyOrderStatus,
 };

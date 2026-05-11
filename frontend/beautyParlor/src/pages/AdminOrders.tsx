@@ -23,7 +23,7 @@ function AdminOrders() {
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [notifyingId, setNotifyingId] = useState<number | null>(null);
   const loadOrders = async () => {
     try {
       setLoading(true);
@@ -109,6 +109,36 @@ function AdminOrders() {
     return matchesStatus && matchesSearch;
   });
 
+  const notifyUser = async (orderId: number) => {
+    try {
+      setNotifyingId(orderId);
+      setError("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/orders/admin/${orderId}/notify`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-key": adminKey,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not notify user");
+      }
+
+      alert("User notified successfully.");
+    } catch {
+      setError("Could not notify user. Check email setup.");
+    } finally {
+      setNotifyingId(null);
+    }
+  };
+
   return (
     <main className="admin-page">
       <section className="admin-hero">
@@ -189,20 +219,30 @@ function AdminOrders() {
                     </p>
                   </div>
 
-                  <select
-                    className="admin-status-select"
-                    value={order.status}
-                    disabled={updatingId === order.id}
-                    onChange={(event) =>
-                      updateOrderStatus(order.id, event.target.value)
-                    }
-                  >
-                    {STATUS_OPTIONS.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="admin-order-actions">
+                    <select
+                      className="admin-status-select"
+                      value={order.status}
+                      disabled={updatingId === order.id}
+                      onChange={(event) =>
+                        updateOrderStatus(order.id, event.target.value)
+                      }
+                    >
+                      {STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      className="admin-notify-btn"
+                      onClick={() => notifyUser(order.id)}
+                      disabled={notifyingId === order.id}
+                    >
+                      {notifyingId === order.id ? "Sending..." : "Notify User"}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="admin-customer">
