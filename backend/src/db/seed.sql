@@ -160,5 +160,71 @@ VALUES
   3
 );
 
+INSERT INTO homepage_stats (
+  stat_value,
+  stat_suffix,
+  stat_label,
+  display_order,
+  is_active
+)
+VALUES
+('5000', '+', 'Happy Clients', 1, TRUE),
+('3', '', 'Locations in Sydney', 2, TRUE),
+('10', '+', 'Specialist Therapists', 3, TRUE),
+('20', '+', 'Beauty Treatments', 4, TRUE)
+ON CONFLICT DO NOTHING;
+
+
+INSERT INTO blogs (
+  slug,
+  title,
+  category,
+  excerpt,
+  content,
+  image_url,
+  author,
+  read_time,
+  is_featured,
+  display_order
+)
+VALUES
+(
+  'brow-lamination-vs-brow-tattoo',
+  'Brow Lamination vs Brow Tattoo: Which One Is Right for You?',
+  'Brow Care',
+  'Two popular brow treatments, but each one fits a different lifestyle and beauty goal.',
+  'Brow lamination and brow tattooing are both popular treatments, but they solve different beauty needs.
+
+Brow lamination is best for people who want fuller, lifted, and styled brows without a permanent result. It works by relaxing and setting the brow hairs into a desired shape.
+
+Brow tattooing is better for people who want a longer-lasting solution, especially if they have sparse brows or want to reduce daily makeup time.
+
+The right choice depends on your lifestyle, budget, and how permanent you want the result to be.',
+  'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=900&q=80',
+  'Brow Beauty Hub',
+  '5 min read',
+  TRUE,
+  1
+),
+(
+  'pre-and-post-waxing-care',
+  'Pre & Post Waxing Care: How to Get the Best Results',
+  'Waxing',
+  'Simple tips for preparing your skin before and after a waxing appointment.',
+  'Waxing gives smooth, long-lasting results, but proper care before and after your appointment makes a big difference.
+
+Before waxing, avoid heavy exfoliation, sunburn, and strong skin treatments. Make sure your skin is clean and dry before the session.
+
+After waxing, avoid hot showers, sweating, swimming, and strong skincare products for at least 24 hours.
+
+This helps reduce irritation and keeps your skin smoother for longer.',
+  'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=80',
+  'Brow Beauty Hub',
+  '4 min read',
+  FALSE,
+  2
+)
+ON CONFLICT (slug) DO NOTHING;
+
 
 

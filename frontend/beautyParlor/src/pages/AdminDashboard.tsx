@@ -20,10 +20,22 @@ const activeCards = [
     icon: "fa-solid fa-spa",
   },
   {
-  title: "Client Reviews",
-  description: "Add and manage customer testimonials for the homepage.",
-  path: "/admin/reviews",
-  icon: "fa-solid fa-star",
+    title: "Client Reviews",
+    description: "Add and manage customer testimonials for the homepage.",
+    path: "/admin/reviews",
+    icon: "fa-solid fa-star",
+  },
+  {
+    title: "Homepage Data",
+    description: "Update homepage statistics like happy clients, locations, therapists, and treatments.",
+    path: "/admin/homepage",
+    icon: "fa-solid fa-house",
+  },
+  {
+    title: "Blogs",
+    description: "Create, update, and manage blog posts shown on the website.",
+    path: "/admin/blogs",
+    icon: "fa-solid fa-blog",
   },
 ];
 

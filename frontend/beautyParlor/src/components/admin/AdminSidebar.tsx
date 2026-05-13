@@ -31,6 +31,16 @@ const adminLinks = [
     path: "/admin/reviews",
     icon: "fa-solid fa-star",
   },
+  {
+    label: "Homepage Data",
+    path: "/admin/homepage",
+    icon: "fa-solid fa-house",
+  },
+  {
+    label: "Blogs",
+    path: "/admin/blogs",
+    icon: "fa-solid fa-blog",
+  },
 ];
 
 const futureLinks = [

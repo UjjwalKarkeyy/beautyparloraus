@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getServices } from "../api/serviceApi";
 import type { Service } from "../types/service";
@@ -6,6 +6,8 @@ import type { Service } from "../types/service";
 function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
 
   useEffect(() => {
     async function loadServices() {
@@ -22,6 +24,31 @@ function Services() {
     loadServices();
   }, []);
 
+  const serviceFilters = useMemo(() => {
+    const labels = services
+      .map((service) => service.label)
+      .filter((label): label is string => Boolean(label));
+
+    return ["all", ...Array.from(new Set(labels))];
+  }, [services]);
+
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const searchText = `
+        ${service.title}
+        ${service.label || ""}
+        ${service.description}
+      `.toLowerCase();
+
+      const matchesSearch = searchText.includes(searchQuery.toLowerCase());
+
+      const matchesFilter =
+        selectedFilter === "all" || service.label === selectedFilter;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [services, searchQuery, selectedFilter]);
+
   return (
     <main>
       <section className="page-banner">
@@ -29,6 +56,7 @@ function Services() {
 
         <div className="page-banner-content">
           <span className="section-label light">What We Offer</span>
+
           <h1>
             Our <em>Services</em>
           </h1>
@@ -38,6 +66,7 @@ function Services() {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
+
               <li className="breadcrumb-item active" aria-current="page">
                 Services
               </li>
@@ -56,51 +85,94 @@ function Services() {
             </h2>
 
             <p className="section-desc">
-              From brows and lashes to facials, henna, waxing and cosmetic
-              beauty treatments — explore our full service menu.
+              Search and explore our brow, lash, facial, waxing, cosmetic, and
+              beauty treatments. Click any service to view full details and book
+              an appointment.
             </p>
           </div>
 
-          {loading ? (
-            <p className="section-desc">Loading services...</p>
-          ) : services.length === 0 ? (
-            <p className="section-desc">No services available right now.</p>
-          ) : (
-            <div className="svc-ov-grid">
-              {services.map((service) => (
-                <Link
-                  key={service.id}
-                  className="svc-ov-card"
-                  to={`/services/${service.slug}`}
+          <div className="services-search-filter">
+            <div className="services-search-box">
+              <i className="fa-solid fa-magnifying-glass"></i>
+
+              <input
+                type="search"
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+            </div>
+
+            <div className="services-filter-pills">
+              {serviceFilters.map((filter) => (
+                <button
+                  key={filter}
+                  className={selectedFilter === filter ? "active" : ""}
+                  onClick={() => setSelectedFilter(filter)}
                 >
-                  <div className="svc-ov-img">
-                    <img
-                      alt={service.title}
-                      loading="lazy"
-                      src={
-                        service.image ||
-                        "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=80"
-                      }
-                    />
-                    <div className="svc-ov-overlay"></div>
-                  </div>
-
-                  <div className="svc-ov-body">
-                    <span className="svc-ov-num">
-                      {service.number || "00"}
-                    </span>
-
-                    <h3>{service.title}</h3>
-                    <p>{service.description}</p>
-
-                    <span className="svc-ov-cta">
-                      Explore Service{" "}
-                      <i className="fa-solid fa-arrow-right"></i>
-                    </span>
-                  </div>
-                </Link>
+                  {filter === "all" ? "All Services" : filter}
+                </button>
               ))}
             </div>
+          </div>
+
+          {loading ? (
+            <p className="section-desc text-center">Loading services...</p>
+          ) : filteredServices.length === 0 ? (
+            <p className="section-desc text-center">
+              No services found. Try another search or filter.
+            </p>
+          ) : (
+            <>
+              <p className="services-result-count">
+                Showing {filteredServices.length} service
+                {filteredServices.length !== 1 ? "s" : ""}
+              </p>
+
+              <div className="svc-ov-grid">
+                {filteredServices.map((service) => (
+                  <Link
+                    key={service.id}
+                    className="svc-ov-card"
+                    to={`/services/${service.slug}`}
+                  >
+                    <div className="svc-ov-img">
+                      <img
+                        alt={service.title}
+                        loading="lazy"
+                        src={
+                          service.image ||
+                          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=80"
+                        }
+                      />
+
+                      <div className="svc-ov-overlay"></div>
+                    </div>
+
+                    <div className="svc-ov-body">
+                      <span className="svc-ov-num">
+                        {service.number || "00"}
+                      </span>
+
+                      {service.label && (
+                        <span className="svc-card-label">
+                          {service.label}
+                        </span>
+                      )}
+
+                      <h3>{service.title}</h3>
+
+                      <p>{service.description}</p>
+
+                      <span className="svc-ov-cta">
+                        View Details{" "}
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </section>

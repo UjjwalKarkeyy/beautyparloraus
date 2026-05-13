@@ -1,14 +1,39 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { locationCards } from "../data/pageData";
+import { sendContactMessage } from "../api/contactApi";
 
 function Contact() {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleContactSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setShowSuccess(true);
-    event.currentTarget.reset();
+
+    try {
+      setSending(true);
+      setShowSuccess(false);
+      setErrorMessage("");
+
+      const formData = new FormData(event.currentTarget);
+
+      const payload = {
+        fullName: String(formData.get("c-name") || ""),
+        email: String(formData.get("c-email") || ""),
+        subject: String(formData.get("c-subject") || ""),
+        message: String(formData.get("c-message") || ""),
+      };
+
+      await sendContactMessage(payload);
+
+      setShowSuccess(true);
+      event.currentTarget.reset();
+    } catch {
+      setErrorMessage("Could not send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -170,14 +195,20 @@ function Contact() {
                   ></textarea>
                 </div>
 
-                <button type="submit" className="btn btn-primary full-width">
-                  Send Message
+                <button type="submit" className="btn btn-primary full-width" disabled={sending}>
+                  {sending ? "Sending..." : "Send Message"}
                 </button>
 
                 {showSuccess && (
                   <div className="form-success" id="contact-success">
                     <i className="fa-solid fa-circle-check"></i> Message sent!
                     We'll be in touch within 24 hours.
+                  </div>
+                )}
+
+                {errorMessage && (
+                  <div className="form-error">
+                    <i className="fa-solid fa-circle-exclamation"></i> {errorMessage}
                   </div>
                 )}
               </form>

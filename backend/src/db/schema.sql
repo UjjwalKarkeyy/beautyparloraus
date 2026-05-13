@@ -87,3 +87,49 @@ CREATE TABLE IF NOT EXISTS email_logs (
   error_message TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE IF NOT EXISTS homepage_stats (
+  id SERIAL PRIMARY KEY,
+  stat_value VARCHAR(50) NOT NULL,
+  stat_suffix VARCHAR(10),
+  stat_label VARCHAR(150) NOT NULL,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS blogs (
+  id SERIAL PRIMARY KEY,
+
+  slug VARCHAR(200) UNIQUE NOT NULL,
+  title VARCHAR(250) NOT NULL,
+  category VARCHAR(120),
+  excerpt TEXT NOT NULL,
+  content TEXT NOT NULL,
+  image_url TEXT,
+  author VARCHAR(150),
+  read_time VARCHAR(50),
+
+  is_featured BOOLEAN DEFAULT FALSE,
+  is_active BOOLEAN DEFAULT TRUE,
+  display_order INTEGER DEFAULT 0,
+
+  published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id SERIAL PRIMARY KEY,
+
+  full_name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL,
+  subject VARCHAR(200) NOT NULL,
+  message TEXT NOT NULL,
+
+  status VARCHAR(50) DEFAULT 'new',
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

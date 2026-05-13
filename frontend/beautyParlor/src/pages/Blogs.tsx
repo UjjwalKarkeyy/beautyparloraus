@@ -1,7 +1,45 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { moreBlogs, sideBlogs } from "../data/pageData";
+import { getBlogs } from "../api/blogApi";
+import type { Blog } from "../types/blog";
 
 function Blogs() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadBlogs() {
+      try {
+        const data = await getBlogs();
+        setBlogs(data);
+      } catch {
+        setBlogs([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadBlogs();
+  }, []);
+
+  const categories = Array.from(
+    new Set(blogs.map((blog) => blog.category).filter(Boolean))
+  );
+
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesCategory =
+      categoryFilter === "all" || blog.category === categoryFilter;
+
+    const searchText = `${blog.title} ${blog.excerpt} ${blog.category || ""}`
+      .toLowerCase();
+
+    const matchesSearch = searchText.includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <main>
       <section className="page-banner">
@@ -37,108 +75,84 @@ function Blogs() {
             </h2>
 
             <p className="section-desc">
-              Expert advice, brow &amp; lash tips, and beauty guides from the
-              Brow Beauty Hub team.
+              Expert advice, brow and lash tips, and beauty guides from the Brow
+              Beauty Hub team.
             </p>
           </div>
 
-          <div className="blogs-grid">
-            <article className="blog-card featured-blog">
-              <div className="blog-img">
-                <img
-                  src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=700&q=80"
-                  alt="Brow Lamination Guide"
-                  loading="lazy"
-                />
+          <div className="blog-filter-bar">
+            <input
+              type="search"
+              placeholder="Search blogs..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
 
-                <span className="blog-cat">Brow Care</span>
-              </div>
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+            >
+              <option value="all">All Categories</option>
 
-              <div className="blog-body">
-                <div className="blog-meta">
-                  <span>
-                    <i className="fa-regular fa-calendar"></i> March 28, 2026
-                  </span>
+              {categories.map((category) => (
+                <option key={category} value={category || ""}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
 
-                  <span>
-                    <i className="fa-regular fa-clock"></i> 5 min read
-                  </span>
-                </div>
+          {loading ? (
+            <p className="section-desc text-center">Loading blogs...</p>
+          ) : filteredBlogs.length === 0 ? (
+            <p className="section-desc text-center">No blogs found.</p>
+          ) : (
+            <div className="row g-4">
+              {filteredBlogs.map((blog) => (
+                <div className="col-md-4" key={blog.id}>
+                  <article className="blog-card">
+                    <div className="blog-img">
+                      <img
+                        src={
+                          blog.imageUrl ||
+                          "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=700&q=80"
+                        }
+                        alt={blog.title}
+                        loading="lazy"
+                      />
 
-                <h3>
-                  Brow Lamination vs Brow Tattoo: Which One Is Right for You?
-                </h3>
-
-                <p>
-                  Two of our most popular brow treatments, but which is the best
-                  fit for your lifestyle and goals? Our specialists break down
-                  everything you need to know before booking.
-                </p>
-
-                <Link to="/blogs" className="blog-link">
-                  Read More <i className="fa-solid fa-arrow-right"></i>
-                </Link>
-              </div>
-            </article>
-
-            <div className="blogs-side">
-              {sideBlogs.map((blog) => (
-                <article className="blog-card-sm" key={blog.title}>
-                  <div className="blog-img-sm">
-                    <img src={blog.image} alt={blog.title} loading="lazy" />
-                  </div>
-
-                  <div className="blog-body-sm">
-                    <span className="blog-cat">{blog.category}</span>
-
-                    <div className="blog-meta">
-                      <span>
-                        <i className="fa-regular fa-calendar"></i> {blog.date}
-                      </span>
+                      {blog.category && (
+                        <span className="blog-cat">{blog.category}</span>
+                      )}
                     </div>
 
-                    <h4>{blog.title}</h4>
+                    <div className="blog-body">
+                      <div className="blog-meta">
+                        <span>
+                          <i className="fa-regular fa-calendar"></i>{" "}
+                          {new Date(blog.publishedAt).toLocaleDateString()}
+                        </span>
 
-                    <Link to="/blogs" className="blog-link">
-                      Read More <i className="fa-solid fa-arrow-right"></i>
-                    </Link>
-                  </div>
-                </article>
+                        {blog.readTime && (
+                          <span>
+                            <i className="fa-regular fa-clock"></i>{" "}
+                            {blog.readTime}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3>{blog.title}</h3>
+                      <p>{blog.excerpt}</p>
+
+                      <Link to={`/blogs/${blog.slug}`} className="blog-link">
+                        Read More <i className="fa-solid fa-arrow-right"></i>
+                      </Link>
+                    </div>
+                  </article>
+                </div>
               ))}
             </div>
-          </div>
-
-          <div className="row g-4 mt-2">
-            {moreBlogs.map((blog) => (
-              <div className="col-md-4" key={blog.title}>
-                <article className="blog-card">
-                  <div className="blog-img">
-                    <img src={blog.image} alt={blog.title} loading="lazy" />
-                    <span className="blog-cat">{blog.category}</span>
-                  </div>
-
-                  <div className="blog-body">
-                    <div className="blog-meta">
-                      <span>
-                        <i className="fa-regular fa-calendar"></i> {blog.date}
-                      </span>
-
-                      <span>
-                        <i className="fa-regular fa-clock"></i> {blog.readTime}
-                      </span>
-                    </div>
-
-                    <h3>{blog.title}</h3>
-                    <p>{blog.description}</p>
-
-                    <Link to="/blogs" className="blog-link">
-                      Read More <i className="fa-solid fa-arrow-right"></i>
-                    </Link>
-                  </div>
-                </article>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </section>
     </main>

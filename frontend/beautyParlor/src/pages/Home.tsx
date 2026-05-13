@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getFeaturedReviews } from "../api/reviewApi";
 import type { Review } from "../types/review";
+import { getHomepageStats } from "../api/homepageApi";
+import type { HomepageStat } from "../types/homepage";
 
 function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [testimonials, setTestimonials] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [homepageStats, setHomepageStats] = useState<HomepageStat[]>([]);
 
   useEffect(() => {
     async function loadReviews() {
@@ -62,6 +65,60 @@ function Home() {
     return () => fadeObserver.disconnect();
   }, []);
 
+  useEffect(() => {
+    async function loadHomepageStats() {
+      try {
+        const data = await getHomepageStats();
+        setHomepageStats(data);
+      } catch {
+        setHomepageStats([
+          {
+            id: 1,
+            value: "5000",
+            suffix: "+",
+            label: "Happy Clients",
+            displayOrder: 1,
+            isActive: true,
+            createdAt: "",
+            updatedAt: "",
+          },
+          {
+            id: 2,
+            value: "3",
+            suffix: "",
+            label: "Locations in Sydney",
+            displayOrder: 2,
+            isActive: true,
+            createdAt: "",
+            updatedAt: "",
+          },
+          {
+            id: 3,
+            value: "10",
+            suffix: "+",
+            label: "Specialist Therapists",
+            displayOrder: 3,
+            isActive: true,
+            createdAt: "",
+            updatedAt: "",
+          },
+          {
+            id: 4,
+            value: "20",
+            suffix: "+",
+            label: "Beauty Treatments",
+            displayOrder: 4,
+            isActive: true,
+            createdAt: "",
+            updatedAt: "",
+          },
+        ]);
+      }
+    }
+
+    loadHomepageStats();
+  }, []);
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, index) => (
       <i
@@ -110,29 +167,13 @@ function Home() {
 
       <section className="stats-strip">
         <div className="stats-container">
-          <div className="stat-item">
-            <span className="stat-number">5000</span>
-            <span className="stat-plus">+</span>
-            <p>Happy Clients</p>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-number">3</span>
-            <span className="stat-plus"></span>
-            <p>Locations in Sydney</p>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-number">10</span>
-            <span className="stat-plus">+</span>
-            <p>Specialist Therapists</p>
-          </div>
-
-          <div className="stat-item">
-            <span className="stat-number">20</span>
-            <span className="stat-plus">+</span>
-            <p>Beauty Treatments</p>
-          </div>
+          {homepageStats.map((stat) => (
+            <div className="stat-item" key={stat.id}>
+              <span className="stat-number">{stat.value}</span>
+              <span className="stat-plus">{stat.suffix}</span>
+              <p>{stat.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 

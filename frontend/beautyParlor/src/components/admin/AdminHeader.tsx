@@ -1,4 +1,5 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { logoutAdmin } from "../../api/adminAuthApi";
 
 const pageInfo: Record<string, { title: string; subtitle: string }> = {
   "/admin": {
@@ -18,9 +19,17 @@ const pageInfo: Record<string, { title: string; subtitle: string }> = {
     subtitle: "Manage the beauty services shown on the website.",
   },
   "/admin/reviews": {
-  title: "Client Reviews",
-  subtitle: "Add, edit, and manage customer testimonials.",
-},
+    title: "Client Reviews",
+    subtitle: "Add, edit, and manage customer testimonials.",
+  },
+  "/admin/homepage": {
+    title: "Homepage Data",
+    subtitle: "Update homepage statistics and visible homepage values.",
+  },
+  "/admin/blogs": {
+    title: "Blogs",
+    subtitle: "Add, edit, and manage website blog posts.",
+  },
 };
 
 interface AdminHeaderProps {
@@ -29,10 +38,16 @@ interface AdminHeaderProps {
 
 function AdminHeader({ openSidebar }: AdminHeaderProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const currentPage = pageInfo[location.pathname] || {
     title: "Admin Panel",
     subtitle: "Manage website content.",
+  };
+
+  const handleLogout = () => {
+    logoutAdmin();
+    navigate("/admin/login");
   };
 
   return (
@@ -41,11 +56,16 @@ function AdminHeader({ openSidebar }: AdminHeaderProps) {
         <i className="fa-solid fa-bars"></i>
       </button>
 
-      <div>
+      <div className="admin-header-text">
         <p className="admin-eyebrow">Brow Beauty Hub</p>
         <h1>{currentPage.title}</h1>
         <p>{currentPage.subtitle}</p>
       </div>
+
+      <button className="admin-logout-btn" onClick={handleLogout}>
+        <i className="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </button>
     </header>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AdminService, AdminServiceForm } from "../types/adminService";
+import { getAdminAuthHeaders } from "../api/adminAuthApi";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
@@ -37,7 +38,7 @@ function AdminServices() {
 
       const response = await fetch(`${API_BASE_URL}/services/admin/all`, {
         headers: {
-          "x-admin-key": adminKey,
+           ...getAdminAuthHeaders(),
         },
       });
 
@@ -112,7 +113,7 @@ function AdminServices() {
         method,
         headers: {
           "Content-Type": "application/json",
-          "x-admin-key": adminKey,
+           ...getAdminAuthHeaders(),
         },
         body: JSON.stringify(buildPayload()),
       });
@@ -163,7 +164,7 @@ function AdminServices() {
       const response = await fetch(`${API_BASE_URL}/services/admin/${id}`, {
         method: "DELETE",
         headers: {
-          "x-admin-key": adminKey,
+           ...getAdminAuthHeaders(),
         },
       });
 

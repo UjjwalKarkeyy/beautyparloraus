@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AdminOrder } from "../types/adminOrder";
+import { getAdminAuthHeaders } from "../api/adminAuthApi";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
@@ -31,7 +32,7 @@ function AdminOrders() {
 
       const response = await fetch(`${API_BASE_URL}/orders/admin`, {
         headers: {
-          "x-admin-key": adminKey,
+           ...getAdminAuthHeaders(),
         },
       });
 
@@ -61,7 +62,7 @@ function AdminOrders() {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            "x-admin-key": adminKey,
+             ...getAdminAuthHeaders(),
           },
           body: JSON.stringify({ status }),
         }
@@ -120,7 +121,7 @@ function AdminOrders() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-admin-key": adminKey,
+             ...getAdminAuthHeaders(),
           },
         }
       );
