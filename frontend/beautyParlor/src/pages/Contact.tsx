@@ -7,6 +7,7 @@ function Contact() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [sending, setSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleContactSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -15,6 +16,7 @@ function Contact() {
       setSending(true);
       setShowSuccess(false);
       setErrorMessage("");
+      setSuccessMessage("");
 
       const formData = new FormData(event.currentTarget);
 
@@ -25,12 +27,31 @@ function Contact() {
         message: String(formData.get("c-message") || ""),
       };
 
-      await sendContactMessage(payload);
+      if (
+        !payload.fullName.trim() ||
+        !payload.email.trim() ||
+        !payload.subject.trim() ||
+        !payload.message.trim()
+      ) {
+        setErrorMessage("Please fill in all message fields.");
+        return;
+      }
+
+      const result = await sendContactMessage(payload);
 
       setShowSuccess(true);
+      setSuccessMessage(
+        result.emailSent === false
+          ? "Message saved. Email delivery is not configured, so please check the admin records."
+          : "Message sent! We'll be in touch within 24 hours."
+      );
       event.currentTarget.reset();
-    } catch {
-      setErrorMessage("Could not send message. Please try again.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not send message. Please try again."
+      );
     } finally {
       setSending(false);
     }
@@ -146,7 +167,6 @@ function Contact() {
               <form
                 className="contact-form"
                 id="contact-form"
-                noValidate
                 onSubmit={handleContactSubmit}
               >
                 <div className="form-row">
@@ -201,8 +221,8 @@ function Contact() {
 
                 {showSuccess && (
                   <div className="form-success" id="contact-success">
-                    <i className="fa-solid fa-circle-check"></i> Message sent!
-                    We'll be in touch within 24 hours.
+                    <i className="fa-solid fa-circle-check"></i>{" "}
+                    {successMessage}
                   </div>
                 )}
 

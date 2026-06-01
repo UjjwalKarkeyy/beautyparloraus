@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AdminService, AdminServiceForm } from "../types/adminService";
+import type { AdminService, AdminServiceForm } from "../types/adminServices";
 import { getAdminAuthHeaders } from "../api/adminAuthApi";
 
 const API_BASE_URL =

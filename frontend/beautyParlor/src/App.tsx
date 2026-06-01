@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -33,6 +34,20 @@ function App() {
 
   const isShopPage = location.pathname === "/shop";
   const isAdminPage = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    if (location.hash) {
+      window.setTimeout(() => {
+        document
+          .querySelector(location.hash)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.hash]);
 
   return (
     <>

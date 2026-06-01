@@ -12,7 +12,9 @@ export async function sendContactMessage(payload: ContactMessagePayload) {
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({
+    error: "Unexpected server response",
+  }));
 
   if (!response.ok) {
     throw new Error(data.error || "Could not send message");
