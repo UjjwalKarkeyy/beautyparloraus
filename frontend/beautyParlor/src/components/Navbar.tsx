@@ -2,26 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 
-const serviceLinks = [
-  { label: "Threading", path: "/services/threading" },
-  { label: "Tinting", path: "/services/tinting" },
-  { label: "Eyelash Extension", path: "/services/eyelash-extension" },
-  { label: "Lash Lift / Perm", path: "/services/lash-lift" },
-  { label: "Facial", path: "/services/facial" },
-  { label: "Henna Tattoo", path: "/services/henna-tattoo" },
-  { label: "Brow Henna", path: "/services/brow-henna" },
-  { label: "Oil Head Massage", path: "/services/oil-massage" },
-  { label: "Face & Body Waxing", path: "/services/waxing" },
-];
-
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const closeMenu = () => {
     setMenuOpen(false);
-    setDropdownOpen(false);
     document.body.style.overflow = "";
   };
 
@@ -68,32 +54,14 @@ function Navbar() {
             </NavLink>
           </li>
 
-          <li className={`nav-dropdown ${dropdownOpen ? "open" : ""}`}>
+          <li>
             <NavLink
               to="/services"
-              className={({ isActive }) =>
-                `nav-dropdown-toggle ${isActive ? "active-nav" : ""}`
-              }
-              onClick={(event) => {
-                if (!dropdownOpen) {
-                  event.preventDefault();
-                  setDropdownOpen(true);
-                }
-              }}
+              onClick={closeMenu}
+              className={({ isActive }) => (isActive ? "active-nav" : "")}
             >
-              Services{" "}
-              <i className="fa-solid fa-chevron-down nav-chevron"></i>
+              Services
             </NavLink>
-
-            <ul className="nav-dropdown-menu">
-              {serviceLinks.map((service) => (
-                <li key={service.path}>
-                  <Link to={service.path} onClick={closeMenu}>
-                    {service.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </li>
 
           <li>

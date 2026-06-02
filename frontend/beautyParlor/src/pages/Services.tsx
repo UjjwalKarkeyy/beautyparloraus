@@ -1,47 +1,53 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { services } from "../data/siteData";
-
-const galleryItems = [
-  {
-    category: "brows",
-    label: "Brow Shaping",
-    image:
-      "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?w=500&q=80",
-  },
-  {
-    category: "lashes",
-    label: "Lash Extensions",
-    image:
-      "https://images.unsplash.com/photo-1519735777090-ec97162dc266?w=500&q=80",
-  },
-  {
-    category: "brows",
-    label: "Brow Lamination",
-    image:
-      "https://images.unsplash.com/photo-1512207736890-6ffed8a84e8d?w=500&q=80",
-  },
-  {
-    category: "skin",
-    label: "Facial Treatment",
-    image:
-      "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500&q=80",
-  },
-  {
-    category: "waxing",
-    label: "Waxing Service",
-    image:
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&q=80",
-  },
-];
+import { getServices } from "../api/serviceApi";
+import type { Service } from "../types/service";
 
 function Services() {
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
 
-  const filteredGallery =
-    activeFilter === "all"
-      ? galleryItems
-      : galleryItems.filter((item) => item.category === activeFilter);
+  useEffect(() => {
+    async function loadServices() {
+      try {
+        const data = await getServices();
+        setServices(data);
+      } catch {
+        setServices([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadServices();
+  }, []);
+
+  const serviceFilters = useMemo(() => {
+    const labels = services
+      .map((service) => service.label)
+      .filter((label): label is string => Boolean(label));
+
+    return ["all", ...Array.from(new Set(labels))];
+  }, [services]);
+
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const searchText = `
+        ${service.title}
+        ${service.label || ""}
+        ${service.description}
+      `.toLowerCase();
+
+      const matchesSearch = searchText.includes(searchQuery.toLowerCase());
+
+      const matchesFilter =
+        selectedFilter === "all" || service.label === selectedFilter;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [services, searchQuery, selectedFilter]);
 
   return (
     <main>
@@ -50,6 +56,7 @@ function Services() {
 
         <div className="page-banner-content">
           <span className="section-label light">What We Offer</span>
+
           <h1>
             Our <em>Services</em>
           </h1>
@@ -59,6 +66,7 @@ function Services() {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
+
               <li className="breadcrumb-item active" aria-current="page">
                 Services
               </li>
@@ -77,83 +85,95 @@ function Services() {
             </h2>
 
             <p className="section-desc">
-              From brows and lashes to facials, henna, waxing and cosmetic
-              beauty treatments — explore our full service menu.
+              Search and explore our brow, lash, facial, waxing, cosmetic, and
+              beauty treatments. Click any service to view full details and book
+              an appointment.
             </p>
           </div>
 
-          <div className="svc-ov-grid">
-            {services.map((service) => (
-              <Link
-                key={service.slug}
-                className="svc-ov-card fade-up"
-                to={`/services/${service.slug}`}
-              >
-                <div className="svc-ov-img">
-                  <img
-                    alt={service.title}
-                    loading="lazy"
-                    src={service.image}
-                  />
-                  <div className="svc-ov-overlay"></div>
-                </div>
+          <div className="services-search-filter">
+            <div className="services-search-box">
+              <i className="fa-solid fa-magnifying-glass"></i>
 
-                <div className="svc-ov-body">
-                  <span className="svc-ov-num">{service.number}</span>
-                  <h3>{service.title}</h3>
-                  <p>{service.description}</p>
+              <input
+                type="search"
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+            </div>
 
-                  <span className="svc-ov-cta">
-                    Explore Service <i className="fa-solid fa-arrow-right"></i>
-                  </span>
-                </div>
-              </Link>
-            ))}
+            <div className="services-filter-pills">
+              {serviceFilters.map((filter) => (
+                <button
+                  key={filter}
+                  className={selectedFilter === filter ? "active" : ""}
+                  onClick={() => setSelectedFilter(filter)}
+                >
+                  {filter === "all" ? "All Services" : filter}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
 
-      <section className="gallery" id="gallery">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-label">Our Work</span>
-
-            <h2 className="section-title">
-              A Glimpse of <em>Our Artistry</em>
-            </h2>
-
-            <p className="section-desc">
-              Every look tells a story. Browse our portfolio of transformations.
+          {loading ? (
+            <p className="section-desc text-center">Loading services...</p>
+          ) : filteredServices.length === 0 ? (
+            <p className="section-desc text-center">
+              No services found. Try another search or filter.
             </p>
-          </div>
+          ) : (
+            <>
+              <p className="services-result-count">
+                Showing {filteredServices.length} service
+                {filteredServices.length !== 1 ? "s" : ""}
+              </p>
 
-          <div className="gallery-filter">
-            {["all", "brows", "lashes", "skin", "waxing"].map((filter) => (
-              <button
-                key={filter}
-                className={`filter-btn ${
-                  activeFilter === filter ? "active" : ""
-                }`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter === "all"
-                  ? "All"
-                  : filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
-          </div>
+              <div className="svc-ov-grid">
+                {filteredServices.map((service) => (
+                  <Link
+                    key={service.id}
+                    className="svc-ov-card"
+                    to={`/services/${service.slug}`}
+                  >
+                    <div className="svc-ov-img">
+                      <img
+                        alt={service.title}
+                        loading="lazy"
+                        src={
+                          service.image ||
+                          "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=80"
+                        }
+                      />
 
-          <div className="gallery-grid">
-            {filteredGallery.map((item) => (
-              <div className="gallery-item" key={item.label}>
-                <img alt={item.label} loading="lazy" src={item.image} />
+                      <div className="svc-ov-overlay"></div>
+                    </div>
 
-                <div className="gallery-overlay">
-                  <span>{item.label}</span>
-                </div>
+                    <div className="svc-ov-body">
+                      <span className="svc-ov-num">
+                        {service.number || "00"}
+                      </span>
+
+                      {service.label && (
+                        <span className="svc-card-label">
+                          {service.label}
+                        </span>
+                      )}
+
+                      <h3>{service.title}</h3>
+
+                      <p>{service.description}</p>
+
+                      <span className="svc-ov-cta">
+                        View Details{" "}
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </span>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       </section>
     </main>

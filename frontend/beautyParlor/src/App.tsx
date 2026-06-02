@@ -1,9 +1,13 @@
+import { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import DiscountPopup from "./components/DiscountPopup";
+
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -13,34 +17,73 @@ import Locations from "./pages/Locations";
 import Blogs from "./pages/Blogs";
 import Contact from "./pages/Contact";
 import Products from "./pages/Products";
+
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
+import AdminServices from "./pages/AdminServices";
+import AdminReviews from "./pages/AdminReviews";
+import AdminHomepage from "./pages/AdminHomepage";
+import BlogDetail from "./pages/BlogDetail";
+import AdminBlogs from "./pages/AdminBlogs";
+
 
 function App() {
   const location = useLocation();
 
   const isShopPage = location.pathname === "/shop";
+  const isAdminPage = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    if (location.hash) {
+      window.setTimeout(() => {
+        document
+          .querySelector(location.hash)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.hash]);
 
   return (
     <>
-      {!isShopPage && <Navbar />}
+      {!isShopPage && !isAdminPage && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
+
         <Route path="/services" element={<Services />} />
         <Route path="/services/:slug" element={<ServiceDetail />} />
+
         <Route path="/locations" element={<Locations />} />
         <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blogs/:slug" element={<BlogDetail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/shop" element={<Products />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
-        <Route path="/admin/products" element={<AdminProducts />} />
+
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        <Route path="/admin" element={<AdminProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="services" element={<AdminServices />} />
+            <Route path="reviews" element={<AdminReviews />} />
+            <Route path="homepage" element={<AdminHomepage />} />
+            <Route path="blogs" element={<AdminBlogs />} />
+          </Route>
+        </Route>
       </Routes>
 
-      {!isShopPage && <Footer />}
-      {!isShopPage && <BackToTop />}
-      {!isShopPage && <DiscountPopup />}
+      {!isShopPage && !isAdminPage && <Footer />}
+      {!isShopPage && !isAdminPage && <BackToTop />}
+      {!isShopPage && !isAdminPage && <DiscountPopup />}
     </>
   );
 }

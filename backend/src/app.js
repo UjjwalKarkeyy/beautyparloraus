@@ -6,7 +6,13 @@ require("dotenv").config();
 
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const serviceRoutes = require("./routes/serviceRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const adminRoutes = require("./routes/adminRoutes");
+const homepageRoutes = require("./routes/homepageRoutes");
+const blogRoutes = require("./routes/blogRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 
 const app = express();
 
@@ -37,7 +43,13 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/homepage", homepageRoutes);
+app.use("/api/blogs", blogRoutes);
+app.use("/api/contact", contactRoutes);
 app.use("/api", orderRoutes);
 
 app.use(notFound);
